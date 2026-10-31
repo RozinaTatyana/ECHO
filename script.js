@@ -66,3 +66,36 @@ if ('IntersectionObserver' in window && !reducedMotion.matches) {
     element.classList.add('reveal'); observer.observe(element);
   });
 }
+
+// ECHO° / EmailJS contact form
+const echoContactForm = document.getElementById('echo-contact-form');
+if (echoContactForm) {
+  const echoStatus = document.getElementById('echo-form-status');
+  const echoSubmit = echoContactForm.querySelector('button[type="submit"]');
+  const echoServiceId = 'service_obf0iam';
+  const echoTemplateId = 'template_xnh4n8d';
+  const echoPublicKey = 'E-tcfEFKFZ2v8UvPH';
+  if (window.emailjs) emailjs.init({ publicKey: echoPublicKey });
+  echoContactForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!echoContactForm.reportValidity()) return;
+    echoSubmit.disabled = true;
+    echoStatus.dataset.state = '';
+    echoStatus.textContent = 'SENDING MESSAGE…';
+    try {
+      if (!window.emailjs) throw new Error('EmailJS SDK is not available');
+      await emailjs.send(echoServiceId, echoTemplateId, {
+        from_name: echoContactForm.elements.from_name.value.trim(),
+        from_email: echoContactForm.elements.from_email.value.trim(),
+        message: echoContactForm.elements.message.value.trim()
+      });
+      echoStatus.dataset.state = 'success';
+      echoStatus.textContent = 'MESSAGE SENT. THANK YOU!';
+      echoContactForm.reset();
+    } catch (error) {
+      console.error('EmailJS:', error);
+      echoStatus.dataset.state = 'error';
+      echoStatus.textContent = 'MESSAGE NOT SENT. PLEASE TRY AGAIN.';
+    } finally { echoSubmit.disabled = false; }
+  });
+}
